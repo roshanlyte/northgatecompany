@@ -1,65 +1,126 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- DOM Elements ---
+    // --- State & DOM Elements ---
+    let PASSCODE = ""; 
+    
+    // Screens
+    const loginScreen = document.getElementById('login-screen');
     const dashboardScreen = document.getElementById('dashboard-screen');
+    
+    // Login
+    const loginBtn = document.getElementById('login-btn');
+    const passcodeInp = document.getElementById('passcode');
+    const loginError = document.getElementById('login-error');
     const logoutBtn = document.getElementById('logout-btn');
+
+    // Table
     const tbody = document.getElementById('ledger-body');
     const emptyState = document.getElementById('empty-state');
+    
+    // Modals
     const entryModal = document.getElementById('entry-modal');
+    
+    // Entry Form
     const entryForm = document.getElementById('entry-form');
     const closeEntryBtn = document.getElementById('close-modal-btn');
     const addEntryBtn = document.getElementById('add-entry-btn');
     const modalTitle = document.getElementById('modal-title');
-
-    // Hide the login screen and show dashboard immediately
-    const loginScreen = document.getElementById('login-screen');
-    if (loginScreen) loginScreen.style.display = 'none';
-    dashboardScreen.classList.add('active');
-
-    // Hide the lock button (no longer needed)
-    if (logoutBtn) logoutBtn.style.display = 'none';
-
+    
+    // Ledger Array
     let ledgerData = [];
 
-    // --- Load Data from Firebase via Netlify Function ---
-    async function loadLedger() {
-        try {
-            const response = await fetch('/.netlify/functions/api?load_all=true');
-            if (response.ok) {
-                const data = await response.json();
-                ledgerData = data.redirects || [];
-                renderTable();
-            } else {
-                console.error('Failed to load ledger data:', response.status);
+    // --- Authentication & DB Fetching ---
+    async function checkAuthAndLoad() {
+        const storedAuth = sessionStorage.getItem('ledger_auth');
+        if (storedAuth) {
+            PASSCODE = storedAuth;
+            try {
+                loginBtn.textContent = "Loading Database...";
+                const response = await fetch('/.netlify/functions/api?load_all=true', {
+                    headers: { 'Authorization': `Bearer ${PASSCODE}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    ledgerData = data.redirects || [];
+                    
+                    loginScreen.classList.remove('active');
+                    dashboardScreen.classList.add('active');
+                    renderTable();
+                } else if (response.status === 401) {
+                    throw new Error("Unauthorized");
+                } else {
+                    throw new Error("Server Error");
+                }
+            } catch (err) {
+                sessionStorage.removeItem('ledger_auth');
+                loginError.textContent = "Session expired or invalid token.";
+                loginScreen.classList.add('active');
+                dashboardScreen.classList.remove('active');
+            } finally {
+                loginBtn.textContent = "Unlock Ledger";
             }
-        } catch (e) {
-            console.error('Network error loading ledger:', e);
+        } else {
+            loginScreen.classList.add('active');
+            dashboardScreen.classList.remove('active');
         }
     }
 
-    // --- Save Data to Firebase via Netlify Function ---
+    loginBtn.addEventListener('click', () => {
+        if (passcodeInp.value) {
+            sessionStorage.setItem('ledger_auth', passcodeInp.value);
+            loginError.textContent = "";
+            checkAuthAndLoad();
+        }
+    });
+
+    passcodeInp.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loginBtn.click();
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('ledger_auth');
+        PASSCODE = "";
+        dashboardScreen.classList.remove('active');
+        loginScreen.classList.add('active');
+        passcodeInp.value = "";
+    });
+
+    // --- Core CRUD API Mutators ---
     async function saveLedgerAPI() {
         try {
             const res = await fetch('/.netlify/functions/api', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Authorization': `Bearer ${PASSCODE}`,
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ redirects: ledgerData })
             });
-            if (!res.ok) alert('Failed to save changes to the database.');
-            else renderTable();
+            if (!res.ok) {
+                if (res.status === 401) {
+                    alert("Session expired. Please log in again.");
+                    logoutBtn.click();
+                } else {
+                    alert("Failed to save changes to the database.");
+                }
+            } else {
+                renderTable();
+            }
         } catch (e) {
-            alert('Network error: Could not reach the database.');
+            alert("Network error: Could not reach the server.");
         }
     }
 
-    // --- Render Table ---
     function renderTable() {
         tbody.innerHTML = '';
-
+        
         if (ledgerData.length === 0) {
             emptyState.classList.remove('hidden');
         } else {
             emptyState.classList.add('hidden');
+            
+            // Sort by Card ID
             ledgerData.sort((a, b) => parseInt(a.cardId) - parseInt(b.cardId));
 
             ledgerData.forEach(entry => {
@@ -78,11 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Add Entry ---
+    // --- Entry Modal Interactions ---
     addEntryBtn.addEventListener('click', () => {
         entryForm.reset();
         document.getElementById('entry-id').value = '';
-        modalTitle.textContent = 'Add New Redirect';
+        modalTitle.textContent = "Add New Redirect";
         entryModal.classList.add('active');
     });
 
@@ -92,15 +153,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     entryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-
+        
         const oldCardId = document.getElementById('entry-id').value;
-        const bName = document.getElementById('business-name').value;
+        let bName = document.getElementById('business-name').value;
         const cId = document.getElementById('card-id').value;
         const nLink = document.getElementById('nfc-link').value;
-
+        
         const newEntry = { businessName: bName, cardId: cId, nfcLink: nLink };
         const primaryButton = entryForm.querySelector('.primary-btn');
-        primaryButton.textContent = 'Saving...';
+        const originalText = primaryButton.textContent;
+        primaryButton.textContent = "Saving...";
 
         if (oldCardId) {
             const idx = ledgerData.findIndex(item => item.cardId === oldCardId);
@@ -108,23 +170,24 @@ document.addEventListener('DOMContentLoaded', () => {
             else ledgerData.push(newEntry);
         } else {
             if (ledgerData.find(item => item.cardId === cId)) {
-                alert('This Card ID already exists!');
-                primaryButton.textContent = 'Save Entry';
+                alert("This Card ID already exists!");
+                primaryButton.textContent = originalText;
                 return;
             }
             ledgerData.push(newEntry);
         }
 
         await saveLedgerAPI();
-        primaryButton.textContent = 'Save Entry';
+        
+        primaryButton.textContent = originalText;
         entryModal.classList.remove('active');
     });
 
-    // --- Edit / Delete ---
+    // Delete / Edit Delegation
     tbody.addEventListener('click', async (e) => {
         if (e.target.classList.contains('action-delete')) {
             const id = e.target.getAttribute('data-id');
-            if (confirm(`Delete Card #${id} permanently?`)) {
+            if (confirm(`Are you sure you want to delete Card #${id}?`)) {
                 ledgerData = ledgerData.filter(item => item.cardId !== id);
                 await saveLedgerAPI();
             }
@@ -136,16 +199,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('business-name').value = entry.businessName;
                 document.getElementById('card-id').value = entry.cardId;
                 document.getElementById('nfc-link').value = entry.nfcLink;
-                modalTitle.textContent = 'Edit Redirect Settings';
+                
+                modalTitle.textContent = "Edit Redirect Settings";
                 entryModal.classList.add('active');
             }
         }
     });
 
-    // Hide export button
+    // Hide export button (automated now)
     const exportBtn = document.getElementById('export-link-btn');
     if (exportBtn) exportBtn.style.display = 'none';
 
-    // Load on startup
-    loadLedger();
+    // Init check
+    checkAuthAndLoad();
 });

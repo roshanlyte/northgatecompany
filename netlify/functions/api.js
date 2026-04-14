@@ -1,5 +1,6 @@
 const FIREBASE_URL = "https://northgatecompany-e693b-default-rtdb.europe-west1.firebasedatabase.app";
 const FIREBASE_SECRET = process.env.FIREBASE_SECRET;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -18,12 +19,23 @@ exports.handler = async (event) => {
         return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: "Server misconfigured: FIREBASE_SECRET env var not set." }) };
     }
 
+    // --- Authentication Helper ---
+    const isAuthenticated = () => {
+        const auth = (event.headers.authorization || event.headers.Authorization || "").trim();
+        // If no password is set in Netlify yet, we fail safe (unauthorized)
+        if (!ADMIN_PASSWORD) return false;
+        return auth === `Bearer ${ADMIN_PASSWORD}`;
+    };
+
     // ── GET ──────────────────────────────────────────────────────────────────
     if (event.httpMethod === "GET") {
         const params = event.queryStringParameters || {};
 
-        // Route 1: Load all redirects (for ledger admin)
+        // Route 1: Load all redirects (for ledger admin) - REQUIRES AUTH
         if (params.load_all === "true") {
+            if (!isAuthenticated()) {
+                return { statusCode: 401, headers: corsHeaders, body: JSON.stringify({ error: "Unauthorized" }) };
+            }
             try {
                 const res = await fetch(`${FIREBASE_URL}/redirects.json?auth=${FIREBASE_SECRET}`);
                 const data = await res.json();
@@ -34,7 +46,7 @@ exports.handler = async (event) => {
             }
         }
 
-        // Route 2: Public lookup by card ID (for NFC tap pages)
+        // Route 2: Public lookup by card ID (for NFC tap pages) - NO AUTH REQUIRED
         if (params.id) {
             try {
                 const res = await fetch(`${FIREBASE_URL}/redirects.json?auth=${FIREBASE_SECRET}`);
@@ -52,6 +64,10 @@ exports.handler = async (event) => {
 
     // ── POST ─────────────────────────────────────────────────────────────────
     if (event.httpMethod === "POST") {
+        // REQUIRES AUTH
+        if (!isAuthenticated()) {
+            return { statusCode: 401, headers: corsHeaders, body: JSON.stringify({ error: "Unauthorized" }) };
+        }
         try {
             const payload = JSON.parse(event.body);
             if (!payload.redirects) throw new Error("Invalid payload: missing 'redirects' field");

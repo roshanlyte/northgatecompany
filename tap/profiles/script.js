@@ -55,9 +55,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = await response.json();
                     ledgerData = data.redirects || [];
                     
-                    loginScreen.classList.remove('active');
-                    dashboardScreen.classList.add('active');
-                    renderTable();
+                    loginBtn.textContent = "Access Granted";
+                    loginBtn.style.backgroundColor = "#4BB543";
+                    loginBtn.style.color = "white";
+                    
+                    setTimeout(() => {
+                        loginScreen.classList.remove('active');
+                        dashboardScreen.classList.add('active');
+                        renderTable();
+                        
+                        setTimeout(() => {
+                            loginBtn.style.backgroundColor = "white";
+                            loginBtn.style.color = "black";
+                            loginBtn.textContent = "Unlock Profiles";
+                        }, 500);
+                    }, 800);
                 } else if (response.status === 401) {
                     throw new Error("Unauthorized");
                 } else {

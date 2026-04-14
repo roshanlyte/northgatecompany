@@ -97,12 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ redirects: ledgerData })
             });
+            
             if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ error: "Unknown Server Error" }));
                 if (res.status === 401) {
                     alert("Session expired. Please log in again.");
                     logoutBtn.click();
                 } else {
-                    alert("Failed to save changes to the database.");
+                    alert(`Failed to save: ${errorData.error || "Check console for details"}`);
                 }
             } else {
                 renderTable();

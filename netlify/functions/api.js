@@ -1,66 +1,78 @@
 const { getStore } = require("@netlify/blobs");
 
-exports.handler = async (event) => {
-    // Initialize Netlify Blobs store named "ledger"
-    const store = getStore("ledger");
-    
-    // Process GET Requests
-    if (event.httpMethod === "GET") {
-        try {
-            // Read data from Blobs DB, default to empty array if it doesn't exist
-            const data = await store.get("redirects", { type: "json" }) || [];
-            
-            // Route 1: Ledger UI Loading All Data (Requires Auth)
-            if (event.queryStringParameters && event.queryStringParameters.load_all === "true") {
-                const authCode = event.headers.authorization;
-                if (authCode !== "Bearer admin123" && authCode !== "Bearer Northgate") {
-                    return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
-                }
-                return { 
-                    statusCode: 200, 
-                    body: JSON.stringify({ redirects: data }) 
-                };
-            }
-            
-            // Route 2: Public Tap Scan Fetching specific ID
-            const id = event.queryStringParameters.id;
-            if (id) {
-                const entry = data.find(e => e.cardId === id);
-                return { 
-                    statusCode: 200, 
-                    body: JSON.stringify({ url: entry ? entry.nfcLink : null }) 
-                };
-            }
-            
-            return { statusCode: 400, body: JSON.stringify({ error: "Bad Request" }) };
+const ADMIN_TOKENS = ["Bearer admin123", "Bearer Northgate"];
 
-        } catch (e) {
-            return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type",
+    "Content-Type": "application/json"
+};
+
+exports.handler = async (event) => {
+
+    // Handle CORS preflight
+    if (event.httpMethod === "OPTIONS") {
+        return { statusCode: 200, headers, body: "" };
+    }
+
+    let store;
+    try {
+        store = getStore("ledger");
+    } catch (e) {
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: "Blobs store unavailable: " + e.message })
+        };
+    }
+
+    // ── GET ──────────────────────────────────────────────────────────────────
+    if (event.httpMethod === "GET") {
+        const params = event.queryStringParameters || {};
+
+        // Route 1: Load all (requires auth)
+        if (params.load_all === "true") {
+            const auth = event.headers.authorization || event.headers.Authorization || "";
+            if (!ADMIN_TOKENS.includes(auth)) {
+                return { statusCode: 401, headers, body: JSON.stringify({ error: "Unauthorized" }) };
+            }
+            try {
+                const data = await store.get("redirects", { type: "json" }) || [];
+                return { statusCode: 200, headers, body: JSON.stringify({ redirects: data }) };
+            } catch (e) {
+                return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
+            }
         }
-    } 
-    
-    // Process POST Requests (Saving Data from Ledger UI)
-    else if (event.httpMethod === "POST") {
-        const authCode = event.headers.authorization;
-        if (authCode !== "Bearer admin123" && authCode !== "Bearer Northgate") {
-            return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
+
+        // Route 2: Public lookup by card ID
+        if (params.id) {
+            try {
+                const data = await store.get("redirects", { type: "json" }) || [];
+                const entry = data.find(e => e.cardId === params.id);
+                return { statusCode: 200, headers, body: JSON.stringify({ url: entry ? entry.nfcLink : null }) };
+            } catch (e) {
+                return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
+            }
         }
-        
+
+        return { statusCode: 400, headers, body: JSON.stringify({ error: "Bad Request" }) };
+    }
+
+    // ── POST ─────────────────────────────────────────────────────────────────
+    if (event.httpMethod === "POST") {
+        const auth = event.headers.authorization || event.headers.Authorization || "";
+        if (!ADMIN_TOKENS.includes(auth)) {
+            return { statusCode: 401, headers, body: JSON.stringify({ error: "Unauthorized" }) };
+        }
         try {
             const payload = JSON.parse(event.body);
-            if (!payload.redirects) throw new Error("Invalid payload");
-            
-            // Write data globally to Blobs
+            if (!payload.redirects) throw new Error("Invalid payload: missing 'redirects' field");
             await store.setJSON("redirects", payload.redirects);
-            
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ success: true })
-            };
+            return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
         } catch (e) {
-            return { statusCode: 500, body: JSON.stringify({ error: e.message }) };
+            return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
         }
     }
-    
-    return { statusCode: 405, body: "Method Not Allowed" };
-}
+
+    return { statusCode: 405, headers, body: JSON.stringify({ error: "Method Not Allowed" }) };
+};

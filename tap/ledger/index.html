@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>North Gate - Ledger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Login Overlay -->
+    <div id="login-screen" class="screen flex-center active">
+        <div class="glass-panel login-panel">
+            <h2>Ledger Access</h2>
+            <p>Please enter your master passcode to manage redirects.</p>
+            <input type="password" id="passcode" placeholder="Enter Passcode..." autocomplete="off">
+            <p id="login-error" class="error-msg"></p>
+            <button id="login-btn" class="btn primary-btn">Unlock Ledger</button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard-screen" class="screen">
+        <div class="dashboard-header">
+            <div class="brand">
+                <h1>North Gate Ledger</h1>
+                <span>NFC & QR Link Management Hub</span>
+            </div>
+            <div class="header-actions">
+                <button id="export-link-btn" class="btn outline-btn">Export Config</button>
+                <button id="add-entry-btn" class="btn primary-btn">+ Add Redirect</button>
+                <button id="logout-btn" class="btn ghost-btn">Lock</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Business Name</th>
+                        <th>Card ID Number</th>
+                        <th>NFC & QR Link</th>
+                        <th class="actions-col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-body">
+                    <!-- Populated via JS -->
+                </tbody>
+            </table>
+            
+            <div id="empty-state" class="empty-state hidden">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M5 12l-3 3 3 3"/></svg>
+                <p>Your ledger is currently empty.</p>
+                <span>Click [+ Add Redirect] to create your first entry.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add / Edit Modal -->
+    <div id="entry-modal" class="modal-overlay">
+        <div class="glass-panel modal">
+            <h2 id="modal-title">Add New Redirect</h2>
+            <form id="entry-form">
+                <input type="hidden" id="entry-id">
+                
+                <div class="input-group">
+                    <label for="business-name">Business Name</label>
+                    <input type="text" id="business-name" placeholder="e.g. Acme Corp" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="card-id">Card ID Number</label>
+                    <input type="number" id="card-id" placeholder="e.g. 77361" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="nfc-link">NFC & QR Target Link</label>
+                    <input type="url" id="nfc-link" placeholder="e.g. https://google.com" required>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="close-modal-btn" class="btn ghost-btn">Cancel</button>
+                    <button type="submit" class="btn primary-btn">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Export Export -->
+    <div id="export-modal" class="modal-overlay">
+        <div class="glass-panel modal export-modal">
+            <h2>Export Script</h2>
+            <p>Run this Python script on your local computer in the repository folder to update the 100 HTML files based on your ledger settings!</p>
+            <div class="code-block">
+                <textarea id="python-export-code" readonly></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="close-export-btn" class="btn ghost-btn">Close</button>
+                <button type="button" id="copy-export-btn" class="btn primary-btn">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

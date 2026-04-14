@@ -1,0 +1,9 @@
+{
+  "name": "northgatecompany",
+  "version": "1.0.0",
+  "description": "North Gate Company landing and NFC redirect management",
+  "main": "index.html",
+  "dependencies": {
+    "@netlify/blobs": "^7.3.0"
+  }
+}

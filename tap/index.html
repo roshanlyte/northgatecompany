@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="North Gate Company's Tap & QR Code Service. Smart-routing, insights, and engagement matrix.">
+    <title>North Gate Company | Tap & QR Service</title>
+    <link rel="stylesheet" href="../style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="../north_gate_logo_transparent.png">
+    <script defer src="../script.js"></script>
+    <style>
+        .hero-section.tap-hero h1 span {
+            background: linear-gradient(135deg, #00d2ff, #f000ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .align-center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .glass-panel.center-panel {
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .glass-panel.center-panel .eyebrow {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .centered-list {
+            text-align: left;
+            margin: 0 auto;
+            display: inline-block;
+        }
+
+        .compact-footer-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="../index.html" class="logo-link">
+            <img src="../north_gate_logo_transparent.png" alt="North Gate Company Logo" class="logo-img">
+        </a>
+        <ul class="nav-links">
+            <li><a href="../index.html">Back to Home</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="../index.html#contact" class="btn-primary">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <header id="hero" class="parallax-section hero-section tap-hero">
+        <div class="parallax-bg" style="background-image: url('tap_bg.png');"></div>
+        <div class="overlay"></div>
+        <div class="content fade-in-up">
+            <h1>The New Era of <span>Smart Connect</span></h1>
+            <p>Our premium Tap & QR Code solutions seamlessly bridge physical products to digital experiences. Easily
+                route users, capture analytics, and drive infinite engagement from a single scan.</p>
+            <div class="cta-group">
+                <a href="#how-it-works" class="btn-primary">Discover How</a>
+                <a href="../index.html" class="btn-secondary">Return Home</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+        </div>
+    </header>
+
+    <section id="how-it-works" class="parallax-section service-section">
+        <!-- Reusing a dark gradient for the second section's background -->
+        <div class="parallax-bg" style="background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);"></div>
+        <div class="overlay dark-overlay"></div>
+        <div class="content align-center scroll-reveal">
+            <div class="text-box glass-panel center-panel text-center">
+                <span class="eyebrow">Intelligent Infrastructure</span>
+                <h2>Dynamic QR Routing</h2>
+                <p>Every QR code you deploy is backed by our dynamic routing engine. Connect your physical assets to the
+                    smart web, and instantly adapt the user journey behind the scenes.</p>
+
+                <ul class="feature-list centered-list">
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12l5 5L20 7"></path>
+                        </svg> Modifiable Final Destinations</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12l5 5L20 7"></path>
+                        </svg> Real-time Flow Redirection</li>
+                    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12l5 5L20 7"></path>
+                        </svg> Seamless Digital Aesthetic Interventions</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="footer">
+        <div class="footer-content" style="grid-template-columns: 1fr;">
+            <div class="footer-info compact-footer-info">
+                <img src="../north_gate_logo_transparent.png" alt="North Gate Company Logo" class="logo-img"
+                    style="height: 60px;">
+                <p style="margin: 0 auto 30px auto; max-width: 500px;">North Gate Company - Intelligent infrastructure
+                    for global scale. Let's elevate your brand's physical and digital footprints.</p>
+                <div class="social-links" style="justify-content: center;">
+                    <a href="#">LinkedIn</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Instagram</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 North Gate Company. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

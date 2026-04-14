@@ -1,0 +1,371 @@
+:root {
+    --bg-color: #0b0b0b;
+    --text-primary: #ffffff;
+    --text-muted: #aaaaaa;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-hover: rgba(255, 255, 255, 0.08);
+    --primary-color: #4BB543;
+    --primary-hover: #3d9636;
+    --danger-color: #ff4b4b;
+    --danger-hover: #e03c3c;
+    --transition: 0.3s ease;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+* {
+    box-sizing: inherit;
+}
+
+/* Base Utility Classes */
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen {
+    display: none;
+    height: 100vh;
+    width: 100%;
+}
+
+.screen.active {
+    display: flex;
+    flex-direction: column;
+}
+
+#login-screen.active {
+    justify-content: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Glass Panels */
+.glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Buttons */
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background var(--transition), transform 0.1s ease, opacity var(--transition);
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.primary-btn {
+    background: var(--text-primary);
+    color: #000;
+}
+
+.primary-btn:hover {
+    background: #e0e0e0;
+}
+
+.outline-btn {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+}
+
+.outline-btn:hover {
+    background: var(--glass-hover);
+}
+
+.ghost-btn {
+    background: transparent;
+    color: var(--text-muted);
+}
+
+.ghost-btn:hover {
+    color: var(--text-primary);
+    background: var(--glass-hover);
+}
+
+.action-edit {
+    color: #00aaff;
+    background: rgba(0, 170, 255, 0.1);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+.action-edit:hover {
+    background: rgba(0, 170, 255, 0.2);
+}
+
+.action-delete {
+    color: var(--danger-color);
+    background: rgba(255, 75, 75, 0.1);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+.action-delete:hover {
+    background: rgba(255, 75, 75, 0.2);
+}
+
+/* Forms & Inputs */
+input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    transition: border var(--transition);
+}
+
+input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.input-group input {
+    margin-bottom: 0;
+}
+
+/* Login Screen */
+.login-panel {
+    text-align: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-panel h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.login-panel p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.login-panel .primary-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.8rem;
+}
+
+.error-msg {
+    color: var(--danger-color) !important;
+    font-size: 0.8rem !important;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem !important;
+    min-height: 1rem;
+}
+
+/* Dashboard Wrapper */
+#dashboard-screen {
+    padding: 2rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.brand h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.brand span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Ledger Table */
+.table-container {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 400px;
+    position: relative;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+thead {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+th, td {
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+td {
+    font-size: 0.95rem;
+}
+
+.actions-col {
+    width: 150px;
+    text-align: right;
+}
+
+.td-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* Empty State */
+.empty-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 100%;
+}
+
+.empty-state p {
+    margin: 1rem 0 0.25rem 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.empty-state span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition);
+    z-index: 100;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal {
+    width: 100%;
+    max-width: 500px;
+    transform: translateY(20px);
+    transition: transform var(--transition);
+}
+
+.modal-overlay.active .modal {
+    transform: translateY(0);
+}
+
+.modal h2 {
+    margin-top: 0;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    font-size: 1.4rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* Export Modal specific snippet box */
+.code-block {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.code-block textarea {
+    width: 100%;
+    height: 150px;
+    background: transparent;
+    border: none;
+    color: #4BB543;
+    font-family: monospace;
+    font-size: 0.85rem;
+    resize: none;
+}
+
+.code-block textarea:focus {
+    outline: none;
+}

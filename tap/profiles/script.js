@@ -35,11 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // New Profile Fields
     const newProfileName = document.getElementById('new-profile-name');
     const newProfilePhoto = document.getElementById('new-profile-photo');
+    const newProfileFile = document.getElementById('new-profile-file');
+    const fileUploadStatus = document.getElementById('file-upload-status');
+    let localBase64Image = '';
 
     // --- Authentication & DB Fetching ---
     async function checkAuthAndLoad() {
-        // Reuse the same session storage key as ledger so they share auth
-        const storedAuth = sessionStorage.getItem('ledger_auth');
+        // Use an isolated session storage key so this page asks for password explicitly
+        const storedAuth = sessionStorage.getItem('profiles_auth');
         if (storedAuth) {
             PASSCODE = storedAuth;
             try {
@@ -61,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error("Server Error");
                 }
             } catch (err) {
-                sessionStorage.removeItem('ledger_auth');
+                sessionStorage.removeItem('profiles_auth');
                 loginError.textContent = "Session expired or invalid token.";
                 loginScreen.classList.add('active');
                 dashboardScreen.classList.remove('active');
@@ -76,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loginBtn.addEventListener('click', () => {
         if (passcodeInp.value) {
-            sessionStorage.setItem('ledger_auth', passcodeInp.value);
+            sessionStorage.setItem('profiles_auth', passcodeInp.value);
             loginError.textContent = "";
             checkAuthAndLoad();
         }
@@ -87,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     logoutBtn.addEventListener('click', () => {
-        sessionStorage.removeItem('ledger_auth');
+        sessionStorage.removeItem('profiles_auth');
         PASSCODE = "";
         dashboardScreen.classList.remove('active');
         loginScreen.classList.add('active');
@@ -172,6 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
         entryModal.classList.remove('active');
         newProfileName.value = '';
         newProfilePhoto.value = '';
+        newProfileFile.value = '';
+        localBase64Image = '';
+        fileUploadStatus.style.display = 'none';
     });
 
     function renderProfilesInModal() {
@@ -199,10 +205,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // File Upload Base64 Processor
+    newProfileFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            localBase64Image = '';
+            fileUploadStatus.style.display = 'none';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 150;
+                canvas.height = 150;
+                
+                const minDim = Math.min(img.width, img.height);
+                const startX = (img.width - minDim) / 2;
+                const startY = (img.height - minDim) / 2;
+                
+                ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, 150, 150);
+                
+                localBase64Image = canvas.toDataURL('image/jpeg', 0.8);
+                fileUploadStatus.style.display = 'block';
+                newProfilePhoto.value = ''; // clear url input prioritizing upload
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
     // Add new profile locally
     addProfileBtn.addEventListener('click', () => {
         const nameVal = newProfileName.value.trim();
-        const photoVal = newProfilePhoto.value.trim();
+        let photoVal = newProfilePhoto.value.trim();
+        
+        if (localBase64Image) {
+            photoVal = localBase64Image;
+        }
         
         if (!nameVal) {
             alert("Profile Name is required!");
@@ -221,6 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset inputs
         newProfileName.value = '';
         newProfilePhoto.value = '';
+        newProfileFile.value = '';
+        localBase64Image = '';
+        fileUploadStatus.style.display = 'none';
     });
 
     // Delete profile locally

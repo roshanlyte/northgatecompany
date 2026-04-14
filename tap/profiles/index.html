@@ -55,6 +55,21 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin: 20px 0;
         }
+        #dashboard-screen {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        #dashboard-screen.active {
+            display: flex;
+        }
+        .dash-nav {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -130,8 +145,14 @@
                 <input type="text" id="new-profile-name" placeholder="e.g. Alex" />
             </div>
             <div class="form-group">
-                <label>Photo URL (Optional)</label>
-                <input type="text" id="new-profile-photo" placeholder="https://i.pravatar.cc/150?u=any" />
+                <label>Profile Photo</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 1rem;">
+                    <input type="text" id="new-profile-photo" placeholder="Direct URL (Optional)" style="flex: 1; margin-bottom: 0;" />
+                    <span style="font-size: 0.8rem; opacity: 0.6;">OR</span>
+                    <label for="new-profile-file" class="outline-btn" style="flex: 1; text-align: center; cursor: pointer; border-radius: 8px; padding: 0.8rem; border-color: rgba(255,255,255,0.2); font-size: 0.9rem;">Upload Local Image</label>
+                    <input type="file" id="new-profile-file" accept="image/*" style="display: none;" />
+                </div>
+                <div id="file-upload-status" style="font-size: 0.85rem; color: #4BB543; margin-top: -5px; margin-bottom: 15px; display: none;">Image ready!</div>
             </div>
             
             <button class="primary-btn" id="add-profile-btn" style="width: 100%; margin-bottom: 15px;">Add Profile</button>

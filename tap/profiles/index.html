@@ -60,30 +60,10 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin: 20px 0;
         }
-        #dashboard-screen {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        #dashboard-screen.active {
-            display: flex;
-        }
-        .dash-nav {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center; /* Center the nav */
-        }
         .modal-content {
             text-align: center; /* center text inside modal */
         }
         .form-group label {
-            text-align: center;
-        }
-        table th, table td {
             text-align: center;
         }
         .solid-panel {
@@ -151,40 +131,36 @@
     </div>
 
     <!-- Dashboard Screen -->
-    <div id="dashboard-screen">
-        <nav class="dash-nav" style="justify-content: center; text-align: center;">
-            <div class="nav-left" style="margin-right: 20px;">
-                <h2>Profiles Authority</h2>
+    <div id="dashboard-screen" class="screen">
+        <div class="dashboard-header">
+            <div class="brand">
+                <h1>North Gate Profiles</h1>
+                <span>NFC & QR Profile Management Hub</span>
             </div>
-            <div class="nav-right">
-                <a href="../ledger/index.html" class="action-btn" style="text-decoration:none; margin-right: 10px;">Go to Ledger</a>
-                <button id="logout-btn" class="action-btn">Terminate Session</button>
+            <div class="header-actions">
+                <a href="../ledger/index.html" class="btn primary-btn" style="text-decoration:none; background: white; color: black; border-radius: 6px; font-weight: 500;">Go to Ledger</a>
+                <button id="logout-btn" class="btn ghost-btn">Lock</button>
             </div>
-        </nav>
+        </div>
 
-        <main class="dash-content">
-            <div class="table-header">
-                <h3>Active Network Cards</h3>
+        <div class="table-container fade-in" style="background: #161616; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: none; box-shadow: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="color: #aaaaaa; text-align: left; padding: 24px; font-size: 0.75rem;">Business Name</th>
+                        <th style="color: #aaaaaa; text-align: left; padding: 24px; font-size: 0.75rem;">Card ID Number</th>
+                        <th style="color: #aaaaaa; text-align: left; padding: 24px; font-size: 0.75rem;">Active Profiles</th>
+                        <th style="color: #aaaaaa; text-align: right; padding: 24px; font-size: 0.75rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="profiles-body">
+                    <!-- Populated via JS -->
+                </tbody>
+            </table>
+            <div id="empty-state" class="empty-state hidden">
+                <p>No active NFC cards found in the ledger database.</p>
             </div>
-            <div class="table-container fade-in">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Business Name</th>
-                            <th>Card ID</th>
-                            <th>Active Profiles</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="profiles-body">
-                        <!-- Populated via JS -->
-                    </tbody>
-                </table>
-                <div id="empty-state" class="empty-state hidden">
-                    <p>No active NFC cards found in the ledger database.</p>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
 
     <!-- Edit Profiles Modal -->

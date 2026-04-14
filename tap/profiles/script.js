@@ -140,11 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tr = document.createElement('tr');
                 const profileCount = entry.profiles ? entry.profiles.length : 0;
                 tr.innerHTML = `
-                    <td><strong>${entry.businessName}</strong></td>
-                    <td style="font-family: monospace; color: var(--text-muted);">#${entry.cardId}</td>
-                    <td><span style="background:rgba(0,170,255,0.2); color:#00aaff; padding:3px 8px; border-radius:12px; font-weight:bold; font-size: 0.9em;">${profileCount} Profiles</span></td>
-                    <td class="td-actions">
-                        <button class="btn action-edit action-manage-profiles" data-id="${entry.cardId}">Manage Profiles</button>
+                    <td style="text-align: left; padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05);"><strong>${entry.businessName}</strong></td>
+                    <td style="text-align: left; padding: 24px; color: #aaaaaa; border-bottom: 1px solid rgba(255,255,255,0.05);">#${entry.cardId}</td>
+                    <td style="text-align: left; padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05);"><span style="color:#00aaff; font-size: 0.9em;">${profileCount} Profiles</span></td>
+                    <td style="text-align: right; padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <button class="btn action-manage-profiles" data-id="${entry.cardId}" style="background: #1a3044; color: #00aaff; border: none; border-radius: 4px; padding: 6px 16px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">Manage Profiles</button>
                     </td>
                 `;
                 tbody.appendChild(tr);

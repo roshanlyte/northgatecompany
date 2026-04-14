@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>North Gate Company - Profiles Dashboard</title>
+    <!-- Use exactly the same style as ledger -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../ledger/style.css">
+    <style>
+        .profile-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .profile-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .profile-name {
+            font-weight: 600;
+        }
+        .delete-profile-btn {
+            background-color: rgba(255, 50, 50, 0.1);
+            color: #ff4d4d;
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .delete-profile-btn:hover {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="active">
+        <div class="login-card glass-panel">
+            <img src="../../north_gate_logo_transparent.png" alt="Company Logo" class="login-logo">
+            <h2>Profiles Administrator</h2>
+            <p>Enter global passphrase to connect to database.</p>
+            <input type="password" id="passcode" placeholder="Enter Passcode..." autocomplete="current-password">
+            <button id="login-btn" class="primary-btn">Unlock Records</button>
+            <p class="error-msg" id="login-error"></p>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen">
+        <nav class="dash-nav">
+            <div class="nav-left">
+                <img src="../../north_gate_logo_transparent.png" alt="Company Logo" class="dash-logo">
+                <h2>Profiles Authority</h2>
+            </div>
+            <div class="nav-right">
+                <a href="../ledger/index.html" class="action-btn" style="text-decoration:none; margin-right: 10px;">Go to Ledger</a>
+                <button id="logout-btn" class="action-btn">Terminate Session</button>
+            </div>
+        </nav>
+
+        <main class="dash-content">
+            <div class="table-header">
+                <h3>Active Network Cards</h3>
+            </div>
+            <div class="table-container fade-in">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Business Name</th>
+                            <th>Card ID</th>
+                            <th>Active Profiles</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profiles-body">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+                <div id="empty-state" class="empty-state hidden">
+                    <p>No active NFC cards found in the ledger database.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Profiles Modal -->
+    <div id="entry-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h2 id="modal-title">Manage Profiles</h2>
+            <p>Editing profiles for Card <strong id="modal-card-id"></strong> (<span id="modal-business-name"></span>)</p>
+            
+            <hr>
+            
+            <h4>Current Profiles</h4>
+            <ul id="current-profiles-list" class="profile-list">
+                <!-- Profiles populated here via JS -->
+            </ul>
+            <p id="no-profiles-msg" style="font-size: 0.9em; opacity: 0.6; margin-top:0;">No profiles added yet.</p>
+
+            <hr>
+
+            <h4>Add New Profile</h4>
+            <div class="form-group">
+                <label>Profile Name</label>
+                <input type="text" id="new-profile-name" placeholder="e.g. Alex" />
+            </div>
+            <div class="form-group">
+                <label>Photo URL (Optional)</label>
+                <input type="text" id="new-profile-photo" placeholder="https://i.pravatar.cc/150?u=any" />
+            </div>
+            
+            <button class="primary-btn" id="add-profile-btn" style="width: 100%; margin-bottom: 15px;">Add Profile</button>
+            
+            <div class="form-actions" style="margin-top: 20px;">
+                <button type="button" class="action-btn" id="close-modal-btn">Close</button>
+                <button type="button" class="primary-btn" id="save-profiles-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -53,7 +53,7 @@ exports.handler = async (event) => {
                 const data = await res.json();
                 const redirects = Array.isArray(data) ? data : [];
                 const entry = redirects.find(e => e.cardId === params.id);
-                return { statusCode: 200, headers: corsHeaders, body: JSON.stringify({ url: entry ? entry.nfcLink : null }) };
+                return { statusCode: 200, headers: corsHeaders, body: JSON.stringify({ url: entry ? entry.nfcLink : null, profiles: entry ? entry.profiles : [] }) };
             } catch (e) {
                 return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: e.message }) };
             }

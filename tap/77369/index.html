@@ -322,18 +322,7 @@
         <h1>How was my service?</h1>
         
         <div class="people-container" id="peopleContainer">
-            <div class="person" onclick="selectPerson(this)">
-                <img src="https://i.pravatar.cc/150?img=11" alt="Alex">
-                <p>Alex</p>
-            </div>
-            <div class="person" onclick="selectPerson(this)">
-                <img src="https://i.pravatar.cc/150?img=33" alt="Jordan">
-                <p>Jordan</p>
-            </div>
-            <div class="person" onclick="selectPerson(this)">
-                <img src="https://i.pravatar.cc/150?img=47" alt="Sam">
-                <p>Sam</p>
-            </div>
+             <div class="loader" style="margin: 20px auto; border-color: rgba(255,255,255,0.2); border-top-color: white; width: 30px; height: 30px;"></div>
         </div>
 
         <div class="stars-container" id="starsContainer">
@@ -372,9 +361,58 @@
     <script>
         const cardId = "77369";
         
+        let targetUrl = 'https://northgatecompany.co.uk'; // Fallback
         let selectedPerson = null;
         let selectedStarValue = 0;
         let currentHover = 0;
+        
+        async function loadProfilesAndDest() {
+            try {
+                const response = await fetch(`/.netlify/functions/api?id=${cardId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.url) targetUrl = data.url;
+                    
+                    const profiles = data.profiles || [];
+                    renderProfiles(profiles);
+                } else {
+                    renderProfiles([]);
+                }
+            } catch (e) {
+                console.error("Failed to load");
+                renderProfiles([]);
+            }
+        }
+        
+        function renderProfiles(profiles) {
+            const container = document.getElementById('peopleContainer');
+            container.innerHTML = '';
+            
+            if (profiles.length === 0) {
+                container.innerHTML = '<p style="opacity: 0.6; font-size: 0.9em; width: 100%;">No representatives assigned.</p>';
+                return;
+            }
+            
+            profiles.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'person';
+                div.onclick = function() { selectPerson(this); };
+                
+                const img = document.createElement('img');
+                img.src = p.photoUrl ? p.photoUrl : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=random`;
+                img.alt = p.name;
+                
+                const pTag = document.createElement('p');
+                pTag.textContent = p.name;
+                
+                div.appendChild(img);
+                div.appendChild(pTag);
+                container.appendChild(div);
+            });
+        }
+        
+        loadProfilesAndDest();
+
         const stars = document.querySelectorAll('.star');
 
         function selectPerson(element) {
@@ -443,20 +481,7 @@
             }, 400);
         }
 
-        async function executeRedirect() {
-            let targetUrl = 'https://northgatecompany.co.uk'; // Fallback
-            try {
-                // Fetch dynamic target from Netlify
-                const response = await fetch(`/.netlify/functions/api?id=${cardId}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.url) {
-                        targetUrl = data.url;
-                    }
-                }
-            } catch (e) {
-                console.error("Database sync failed");
-            }
+        function executeRedirect() {
             window.location.href = targetUrl;
         }
     </script>

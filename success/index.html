@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success - North Gate Company</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #0f172a;
+            font-family: 'Inter', sans-serif;
+            color: white;
+            text-align: center;
+        }
+
+        .success-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Animated Tick CSS */
+        .check-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 50px rgba(34, 197, 94, 0.2);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .check-circle::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #22c55e;
+            border-top-color: transparent;
+            border-left-color: transparent;
+            animation: rotateSpin 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+
+        .check-icon::before, .check-icon::after {
+            content: '';
+            position: absolute;
+            background-color: #22c55e;
+            border-radius: 5px;
+        }
+
+        .check-icon::before {
+            width: 10px;
+            height: 40px;
+            left: 20px;
+            top: 40px;
+            transform: rotate(-45deg);
+            transform-origin: bottom left;
+            animation: drawShort 0.3s 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .check-icon::after {
+            width: 10px;
+            height: 70px;
+            left: 45px;
+            top: 10px;
+            transform: rotate(45deg);
+            transform-origin: bottom left;
+            animation: drawLong 0.4s 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        h1 {
+            margin-top: 40px;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #f8fafc;
+            letter-spacing: -0.025em;
+        }
+
+        p {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            color: #94a3b8;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 30px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        @keyframes rotateSpin {
+            0% { transform: rotate(-135deg); border-top-color: transparent; border-left-color: transparent; }
+            100% { transform: rotate(45deg); border-top-color: #22c55e; border-left-color: #22c55e; }
+        }
+
+        @keyframes drawShort {
+            0% { height: 0; opacity: 1; }
+            100% { height: 40px; opacity: 1; }
+        }
+
+        @keyframes drawLong {
+            0% { height: 0; opacity: 1; }
+            100% { height: 70px; opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="check-circle">
+            <div class="check-icon"></div>
+        </div>
+        <h1>Deployment Successful!</h1>
+        <p>If you're seeing this animated tick, it means your repository is perfectly linked and Netlify has auto-deployed your latest push to GitHub.</p>
+    </div>
+</body>
+</html>

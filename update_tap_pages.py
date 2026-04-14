@@ -349,7 +349,7 @@ TEMPLATE = """<!DOCTYPE html>
         </div>
 
         <div class="feedback-container" id="feedbackContainer">
-            <textarea placeholder="Why? (Optional)" id="feedbackText"></textarea>
+            <textarea placeholder="Reason (Optional)" id="feedbackText"></textarea>
             <button class="btn-submit" id="submitBtn" onclick="submitFeedback()">Submit</button>
         </div>
     </div>

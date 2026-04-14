@@ -1,6 +1,5 @@
 const FIREBASE_URL = "https://northgatecompany-e693b-default-rtdb.europe-west1.firebasedatabase.app";
-const FIREBASE_SECRET = "IK8t5fJZT77aJm28x9N8pBgfZf0JP6WmxCNUi5CE";
-const ADMIN_TOKENS = ["Bearer admin123", "Bearer Northgate"];
+const FIREBASE_SECRET = process.env.FIREBASE_SECRET;
 
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -15,20 +14,19 @@ exports.handler = async (event) => {
         return { statusCode: 200, headers: corsHeaders, body: "" };
     }
 
+    if (!FIREBASE_SECRET) {
+        return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: "Server misconfigured: FIREBASE_SECRET env var not set." }) };
+    }
+
     // ── GET ──────────────────────────────────────────────────────────────────
     if (event.httpMethod === "GET") {
         const params = event.queryStringParameters || {};
 
-        // Route 1: Load all (auth required - for ledger admin)
+        // Route 1: Load all redirects (for ledger admin)
         if (params.load_all === "true") {
-            const auth = (event.headers.authorization || event.headers.Authorization || "").trim();
-            if (!ADMIN_TOKENS.includes(auth)) {
-                return { statusCode: 401, headers: corsHeaders, body: JSON.stringify({ error: "Unauthorized" }) };
-            }
             try {
                 const res = await fetch(`${FIREBASE_URL}/redirects.json?auth=${FIREBASE_SECRET}`);
                 const data = await res.json();
-                // Firebase returns null if no data yet
                 const redirects = Array.isArray(data) ? data : [];
                 return { statusCode: 200, headers: corsHeaders, body: JSON.stringify({ redirects }) };
             } catch (e) {
@@ -54,15 +52,10 @@ exports.handler = async (event) => {
 
     // ── POST ─────────────────────────────────────────────────────────────────
     if (event.httpMethod === "POST") {
-        const auth = (event.headers.authorization || event.headers.Authorization || "").trim();
-        if (!ADMIN_TOKENS.includes(auth)) {
-            return { statusCode: 401, headers: corsHeaders, body: JSON.stringify({ error: "Unauthorized" }) };
-        }
         try {
             const payload = JSON.parse(event.body);
             if (!payload.redirects) throw new Error("Invalid payload: missing 'redirects' field");
 
-            // PUT overwrites the entire redirects array in Firebase
             const res = await fetch(`${FIREBASE_URL}/redirects.json?auth=${FIREBASE_SECRET}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },

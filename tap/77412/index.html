@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>North Gate Company - Scan</title>
-    <!-- Placeholder redirect to homepage for now -->
+    <title>North Gate Company - Service Feedback</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -12,27 +11,202 @@
             background-color: #0b0b0b;
             color: white;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
             text-align: center;
+            overflow: hidden;
         }
-        .message {
-            max-width: 400px;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+
+        .container {
+            max-width: 450px;
+            width: 90%;
+            padding: 2.5rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
         }
-        h1 { margin-top: 0; font-weight: 600; font-size: 1.5rem; }
-        p { color: #aaa; margin-bottom: 0px; font-weight: 300; line-height: 1.6; }
-        .success-animation {
-            margin: 1.5rem auto;
+
+        h1 {
+            margin-top: 0;
+            font-weight: 600;
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* People Selection */
+        .people-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+        }
+        
+        .person {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .person:hover {
+            opacity: 1;
+        }
+
+        .person.selected {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .person.not-selected {
+            opacity: 0.3;
+            transform: scale(0.9);
+        }
+
+        .person img {
             width: 60px;
             height: 60px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .person.selected img {
+            border-color: #00aaff;
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+        }
+
+        .person p {
+            margin: 10px 0 0;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        /* Star Rating */
+        .stars-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            max-height: 50px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+        
+        .stars-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .star {
+            font-size: 2.2rem;
+            color: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .star:hover {
+            transform: scale(1.2);
+        }
+
+        .star.active {
+            color: #fbb034;
+            text-shadow: 0 0 10px rgba(251, 176, 52, 0.5);
+        }
+
+        /* Feedback Box */
+        .feedback-container {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .feedback-container.visible {
+            opacity: 1;
+            max-height: 200px;
+            pointer-events: auto;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            border-color: #00aaff;
+        }
+
+        .btn-submit {
+            margin-top: 15px;
+            background: linear-gradient(135deg, #00d2ff, #007aff);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            pointer-events: auto;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 170, 255, 0.4);
+        }
+
+        /* Success screen overlays */
+        .success-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #0b0b0b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .success-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Tick Animation from original */
+        .success-animation {
+            width: 80px;
+            height: 80px;
             position: relative;
+            margin-bottom: 20px;
         }
 
         .gpay-tick {
@@ -44,6 +218,9 @@
             stroke: #4BB543;
             stroke-miterlimit: 10;
             box-shadow: inset 0px 0px 0px #4BB543;
+        }
+
+        .success-overlay.visible .gpay-tick {
             animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
         }
 
@@ -54,7 +231,10 @@
             stroke-miterlimit: 10;
             stroke: #4BB543;
             fill: none;
-            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        
+        .success-overlay.visible .gpay-tick__circle {
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.1s forwards;
         }
 
         .gpay-tick__check {
@@ -64,53 +244,113 @@
             stroke: #fff;
             stroke-width: 3;
             fill: none;
+        }
+        
+        .success-overlay.visible .gpay-tick__check {
             animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
         }
 
         @keyframes stroke {
-            100% {
-                stroke-dashoffset: 0;
-            }
+            100% { stroke-dashoffset: 0; }
         }
 
         @keyframes scale {
-            0%, 100% {
-                transform: none;
-            }
-            50% {
-                transform: scale3d(1.1, 1.1, 1);
-            }
+            0%, 100% { transform: none; }
+            50% { transform: scale3d(1.1, 1.1, 1); }
         }
 
         @keyframes fill {
-            100% {
-                box-shadow: inset 0px 0px 0px 30px #4BB543;
-            }
+            100% { box-shadow: inset 0px 0px 0px 40px #4BB543; }
         }
+
+        /* Confetti */
         .confetti {
             position: absolute;
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             top: 50%;
             left: 50%;
             border-radius: 50%;
-            margin-left: -3px;
-            margin-top: -3px;
+            margin-left: -4px;
+            margin-top: -4px;
             opacity: 0;
-            animation: shoot 0.6s ease-out 0.8s forwards;
             pointer-events: none;
+        }
+
+        .success-overlay.visible .confetti {
+            animation: shoot 0.7s ease-out 0.8s forwards;
         }
 
         @keyframes shoot {
             0% { transform: rotate(var(--angle)) translateY(0) scale(0.5); opacity: 1; }
             40% { opacity: 1; }
-            100% { transform: rotate(var(--angle)) translateY(-45px) scale(1); opacity: 0; }
+            100% { transform: rotate(var(--angle)) translateY(-65px) scale(1); opacity: 0; }
         }
+
+        .thank-you-msg {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: white;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .thank-you-msg.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .loader {
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
-    <div class="message">
-        <h1>Scan Successful</h1>
+
+    <div class="container" id="mainContainer">
+        <h1>How was my service?</h1>
+        
+        <div class="people-container" id="peopleContainer">
+            <div class="person" onclick="selectPerson(this)">
+                <img src="https://i.pravatar.cc/150?img=11" alt="Alex">
+                <p>Alex</p>
+            </div>
+            <div class="person" onclick="selectPerson(this)">
+                <img src="https://i.pravatar.cc/150?img=33" alt="Jordan">
+                <p>Jordan</p>
+            </div>
+            <div class="person" onclick="selectPerson(this)">
+                <img src="https://i.pravatar.cc/150?img=47" alt="Sam">
+                <p>Sam</p>
+            </div>
+        </div>
+
+        <div class="stars-container" id="starsContainer">
+            <span class="star" onmouseover="hoverStar(1)" onmouseout="resetStars()" onclick="selectStar(1)">★</span>
+            <span class="star" onmouseover="hoverStar(2)" onmouseout="resetStars()" onclick="selectStar(2)">★</span>
+            <span class="star" onmouseover="hoverStar(3)" onmouseout="resetStars()" onclick="selectStar(3)">★</span>
+            <span class="star" onmouseover="hoverStar(4)" onmouseout="resetStars()" onclick="selectStar(4)">★</span>
+            <span class="star" onmouseover="hoverStar(5)" onmouseout="resetStars()" onclick="selectStar(5)">★</span>
+        </div>
+
+        <div class="feedback-container" id="feedbackContainer">
+            <textarea placeholder="Why? (Optional)" id="feedbackText"></textarea>
+            <button class="btn-submit" id="submitBtn" onclick="submitFeedback()">Submit</button>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
         <div class="success-animation">
             <svg class="gpay-tick" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
                 <path class="gpay-tick__circle" d="M 50.00 26.00 L 50.31 26.42 L 50.60 26.86 L 50.85 27.30 L 51.05 27.75 L 51.20 28.20 L 51.29 28.66 L 51.30 29.11 L 51.24 29.55 L 51.11 29.98 L 50.91 30.39 L 50.65 30.79 L 50.34 31.17 L 49.98 31.54 L 49.59 31.88 L 49.18 32.21 L 48.77 32.53 L 48.37 32.84 L 47.99 33.14 L 47.64 33.45 L 47.33 33.76 L 47.07 34.09 L 46.87 34.43 L 46.72 34.79 L 46.62 35.18 L 46.57 35.59 L 46.57 36.03 L 46.60 36.50 L 46.65 36.98 L 46.72 37.48 L 46.78 38.00 L 46.84 38.52 L 46.87 39.04 L 46.87 39.55 L 46.82 40.04 L 46.72 40.51 L 46.57 40.95 L 46.36 41.34 L 46.09 41.69 L 45.76 42.00 L 45.38 42.26 L 44.95 42.48 L 44.49 42.65 L 44.00 42.78 L 43.49 42.89 L 42.97 42.97 L 42.46 43.04 L 41.95 43.11 L 41.47 43.18 L 41.01 43.27 L 40.59 43.39 L 40.21 43.54 L 39.86 43.74 L 39.55 43.98 L 39.27 44.26 L 39.02 44.60 L 38.80 44.97 L 38.59 45.39 L 38.39 45.84 L 38.20 46.30 L 38.00 46.78 L 37.79 47.26 L 37.55 47.73 L 37.30 48.17 L 37.01 48.57 L 36.69 48.93 L 36.34 49.23 L 35.96 49.47 L 35.55 49.64 L 35.11 49.74 L 34.65 49.77 L 34.18 49.75 L 33.69 49.66 L 33.20 49.53 L 32.70 49.37 L 32.21 49.18 L 31.73 48.98 L 31.26 48.79 L 30.81 48.61 L 30.37 48.46 L 29.94 48.36 L 29.53 48.30 L 29.13 48.29 L 28.74 48.34 L 28.36 48.45 L 27.98 48.61 L 27.60 48.83 L 27.21 49.09 L 26.82 49.38 L 26.41 49.68 L 26.00 50.00 L 25.58 50.31 L 25.14 50.60 L 24.70 50.85 L 24.25 51.05 L 23.80 51.20 L 23.34 51.29 L 22.89 51.30 L 22.45 51.24 L 22.02 51.11 L 21.61 50.91 L 21.21 50.65 L 20.83 50.34 L 20.46 49.98 L 20.12 49.59 L 19.79 49.18 L 19.47 48.77 L 19.16 48.37 L 18.86 47.99 L 18.55 47.64 L 18.24 47.33 L 17.91 47.07 L 17.57 46.87 L 17.21 46.72 L 16.82 46.62 L 16.41 46.57 L 15.97 46.57 L 15.50 46.60 L 15.02 46.65 L 14.52 46.72 L 14.00 46.78 L 13.48 46.84 L 12.96 46.87 L 12.45 46.87 L 11.96 46.82 L 11.49 46.72 L 11.05 46.57 L 10.66 46.36 L 10.31 46.09 L 10.00 45.76 L 9.74 45.38 L 9.52 44.95 L 9.35 44.49 L 9.22 44.00 L 9.11 43.49 L 9.03 42.97 L 8.96 42.46 L 8.89 41.95 L 8.82 41.47 L 8.73 41.01 L 8.61 40.59 L 8.46 40.21 L 8.26 39.86 L 8.02 39.55 L 7.74 39.27 L 7.40 39.02 L 7.03 38.80 L 6.61 38.59 L 6.16 38.39 L 5.70 38.20 L 5.22 38.00 L 4.74 37.79 L 4.27 37.55 L 3.83 37.30 L 3.43 37.01 L 3.07 36.69 L 2.77 36.34 L 2.53 35.96 L 2.36 35.55 L 2.26 35.11 L 2.23 34.65 L 2.25 34.18 L 2.34 33.69 L 2.47 33.20 L 2.63 32.70 L 2.82 32.21 L 3.02 31.73 L 3.21 31.26 L 3.39 30.81 L 3.54 30.37 L 3.64 29.94 L 3.70 29.53 L 3.71 29.13 L 3.66 28.74 L 3.55 28.36 L 3.39 27.98 L 3.17 27.60 L 2.91 27.21 L 2.62 26.82 L 2.32 26.41 L 2.00 26.00 L 1.69 25.58 L 1.40 25.14 L 1.15 24.70 L 0.95 24.25 L 0.80 23.80 L 0.71 23.34 L 0.70 22.89 L 0.76 22.45 L 0.89 22.02 L 1.09 21.61 L 1.35 21.21 L 1.66 20.83 L 2.02 20.46 L 2.41 20.12 L 2.82 19.79 L 3.23 19.47 L 3.63 19.16 L 4.01 18.86 L 4.36 18.55 L 4.67 18.24 L 4.93 17.91 L 5.13 17.57 L 5.28 17.21 L 5.38 16.82 L 5.43 16.41 L 5.43 15.97 L 5.40 15.50 L 5.35 15.02 L 5.28 14.52 L 5.22 14.00 L 5.16 13.48 L 5.13 12.96 L 5.13 12.45 L 5.18 11.96 L 5.28 11.49 L 5.43 11.05 L 5.64 10.66 L 5.91 10.31 L 6.24 10.00 L 6.62 9.74 L 7.05 9.52 L 7.51 9.35 L 8.00 9.22 L 8.51 9.11 L 9.03 9.03 L 9.54 8.96 L 10.05 8.89 L 10.53 8.82 L 10.99 8.73 L 11.41 8.61 L 11.79 8.46 L 12.14 8.26 L 12.45 8.02 L 12.73 7.74 L 12.98 7.40 L 13.20 7.03 L 13.41 6.61 L 13.61 6.16 L 13.80 5.70 L 14.00 5.22 L 14.21 4.74 L 14.45 4.27 L 14.70 3.83 L 14.99 3.43 L 15.31 3.07 L 15.66 2.77 L 16.04 2.53 L 16.45 2.36 L 16.89 2.26 L 17.35 2.23 L 17.82 2.25 L 18.31 2.34 L 18.80 2.47 L 19.30 2.63 L 19.79 2.82 L 20.27 3.02 L 20.74 3.21 L 21.19 3.39 L 21.63 3.54 L 22.06 3.64 L 22.47 3.70 L 22.87 3.71 L 23.26 3.66 L 23.64 3.55 L 24.02 3.39 L 24.40 3.17 L 24.79 2.91 L 25.18 2.62 L 25.59 2.32 L 26.00 2.00 L 26.42 1.69 L 26.86 1.40 L 27.30 1.15 L 27.75 0.95 L 28.20 0.80 L 28.66 0.71 L 29.11 0.70 L 29.55 0.76 L 29.98 0.89 L 30.39 1.09 L 30.79 1.35 L 31.17 1.66 L 31.54 2.02 L 31.88 2.41 L 32.21 2.82 L 32.53 3.23 L 32.84 3.63 L 33.14 4.01 L 33.45 4.36 L 33.76 4.67 L 34.09 4.93 L 34.43 5.13 L 34.79 5.28 L 35.18 5.38 L 35.59 5.43 L 36.03 5.43 L 36.50 5.40 L 36.98 5.35 L 37.48 5.28 L 38.00 5.22 L 38.52 5.16 L 39.04 5.13 L 39.55 5.13 L 40.04 5.18 L 40.51 5.28 L 40.95 5.43 L 41.34 5.64 L 41.69 5.91 L 42.00 6.24 L 42.26 6.62 L 42.48 7.05 L 42.65 7.51 L 42.78 8.00 L 42.89 8.51 L 42.97 9.03 L 43.04 9.54 L 43.11 10.05 L 43.18 10.53 L 43.27 10.99 L 43.39 11.41 L 43.54 11.79 L 43.74 12.14 L 43.98 12.45 L 44.26 12.73 L 44.60 12.98 L 44.97 13.20 L 45.39 13.41 L 45.84 13.61 L 46.30 13.80 L 46.78 14.00 L 47.26 14.21 L 47.73 14.45 L 48.17 14.70 L 48.57 14.99 L 48.93 15.31 L 49.23 15.66 L 49.47 16.04 L 49.64 16.45 L 49.74 16.89 L 49.77 17.35 L 49.75 17.82 L 49.66 18.31 L 49.53 18.80 L 49.37 19.30 L 49.18 19.79 L 48.98 20.27 L 48.79 20.74 L 48.61 21.19 L 48.46 21.63 L 48.36 22.06 L 48.30 22.47 L 48.29 22.87 L 48.34 23.26 L 48.45 23.64 L 48.61 24.02 L 48.83 24.40 L 49.09 24.79 L 49.38 25.18 L 49.68 25.59 L 50.00 26.00" fill="none"/>
@@ -125,33 +365,100 @@
             <div class="confetti" style="--angle: 270deg; background-color: #00aaff;"></div>
             <div class="confetti" style="--angle: 315deg; background-color: #fbb034;"></div>
         </div>
-        <p>Redirecting you shortly...</p>
-        <p style="font-size: 0.8rem; margin-top: 1rem; opacity: 0.5;">This placeholder page will be updated later.</p>
+        <p class="thank-you-msg" id="thankYouMsg">Thank You!</p>
+        <p style="font-size: 0.8rem; margin-top: 1rem; opacity: 0.5; font-weight:300;">Redirecting you shortly...</p>
     </div>
+
     <script>
         const cardId = "77412";
-        console.log("Scanned ID:", cardId);
+        
+        let selectedPerson = null;
+        let selectedStarValue = 0;
+        let currentHover = 0;
+        const stars = document.querySelectorAll('.star');
+
+        function selectPerson(element) {
+            // Deselect others, select this one
+            document.querySelectorAll('.person').forEach(p => {
+                p.classList.remove('selected');
+                p.classList.add('not-selected');
+            });
+            element.classList.remove('not-selected');
+            element.classList.add('selected');
+            selectedPerson = element.querySelector('p').textContent;
+
+            // Show stars
+            document.getElementById('starsContainer').classList.add('visible');
+        }
+
+        function hoverStar(value) {
+            stars.forEach((star, index) => {
+                if (index < value) star.classList.add('active');
+                else star.classList.remove('active');
+            });
+        }
+
+        function resetStars() {
+            stars.forEach((star, index) => {
+                if (index < selectedStarValue) star.classList.add('active');
+                else star.classList.remove('active');
+            });
+        }
+
+        function selectStar(value) {
+            selectedStarValue = value;
+            resetStars();
+            // Show feedback text area
+            document.getElementById('feedbackContainer').classList.add('visible');
+        }
+
+        async function submitFeedback() {
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<span class="loader"></span> Sending...';
+            btn.style.pointerEvents = 'none';
+            // Disable interactions
+            document.getElementById('feedbackText').disabled = true;
+
+            // Simulate slight delay for sending feedback
+            await new Promise(r => setTimeout(r, 600));
+
+            // Hide Main container gracefully
+            document.getElementById('mainContainer').style.opacity = '0';
+            document.getElementById('mainContainer').style.transform = 'scale(0.95)';
+            
+            // Show Success Overlay
+            setTimeout(() => {
+                document.getElementById('successOverlay').classList.add('visible');
+                
+                // Show 'Thank you' after tick completes (approx 1.2s + delay)
+                setTimeout(() => {
+                    document.getElementById('thankYouMsg').classList.add('visible');
+                }, 1400);
+
+                // Wait then redirect
+                setTimeout(() => {
+                    executeRedirect();
+                }, 2200);
+
+            }, 400);
+        }
 
         async function executeRedirect() {
+            let targetUrl = 'https://northgatecompany.co.uk'; // Fallback
             try {
-                // Fetch dynamic target from Netlify Blobs Database
+                // Fetch dynamic target from Netlify
                 const response = await fetch(`/.netlify/functions/api?id=${cardId}`);
                 if (response.ok) {
                     const data = await response.json();
                     if (data.url) {
-                        setTimeout(() => window.location.href = data.url, 2500);
-                        return;
+                        targetUrl = data.url;
                     }
                 }
             } catch (e) {
                 console.error("Database sync failed");
             }
-            
-            // Default Fallback
-            setTimeout(() => window.location.href = 'https://northgatecompany.co.uk', 2500);
+            window.location.href = targetUrl;
         }
-
-        executeRedirect();
     </script>
 </body>
 </html>

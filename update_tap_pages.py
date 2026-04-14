@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+import os
+import glob
+
+# HTML Template with Placeholders
+TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -370,7 +374,7 @@
     </div>
 
     <script>
-        const cardId = "77365";
+        const cardId = "{CARD_ID}";
         
         let selectedPerson = null;
         let selectedStarValue = 0;
@@ -462,3 +466,27 @@
     </script>
 </body>
 </html>
+"""
+
+def update_pages():
+    base_dir = './tap'
+    # Find all numeric directories inside tap/
+    valid_dirs = []
+    if os.path.exists(base_dir):
+        for entry in os.listdir(base_dir):
+            if os.path.isdir(os.path.join(base_dir, entry)) and entry.isdigit():
+                valid_dirs.append(entry)
+                
+    count = 0
+    for card_id in valid_dirs:
+        file_path = os.path.join(base_dir, card_id, 'index.html')
+        content = TEMPLATE.replace('{CARD_ID}', card_id)
+        
+        with open(file_path, 'w') as f:
+            f.write(content)
+        count += 1
+        
+    print(f"Successfully updated {count} NFC page(s).")
+
+if __name__ == "__main__":
+    update_pages()

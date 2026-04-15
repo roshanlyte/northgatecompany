@@ -400,6 +400,9 @@ TEMPLATE = """<!DOCTYPE html>
             profiles.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'person';
+                div.dataset.profileId = p.id || p.name;
+                div.dataset.profileName = p.name;
+                div.dataset.profilePhoto = p.photoUrl || '';
                 div.onclick = function() { selectPerson(this); };
                 
                 const img = document.createElement('img');
@@ -419,6 +422,9 @@ TEMPLATE = """<!DOCTYPE html>
 
         const stars = document.querySelectorAll('.star');
 
+        let selectedPersonId = null;
+        let selectedPersonPhoto = '';
+
         function selectPerson(element) {
             // Deselect others, select this one
             document.querySelectorAll('.person').forEach(p => {
@@ -427,7 +433,9 @@ TEMPLATE = """<!DOCTYPE html>
             });
             element.classList.remove('not-selected');
             element.classList.add('selected');
-            selectedPerson = element.querySelector('p').textContent;
+            selectedPerson = element.dataset.profileName || element.querySelector('p').textContent;
+            selectedPersonId = element.dataset.profileId || selectedPerson;
+            selectedPersonPhoto = element.dataset.profilePhoto || '';
 
             // Show stars
             document.getElementById('starsContainer').classList.add('visible');
@@ -458,11 +466,31 @@ TEMPLATE = """<!DOCTYPE html>
             const btn = document.getElementById('submitBtn');
             btn.innerHTML = '<span class="loader"></span> Sending...';
             btn.style.pointerEvents = 'none';
-            // Disable interactions
             document.getElementById('feedbackText').disabled = true;
 
-            // Simulate slight delay for sending feedback
-            await new Promise(r => setTimeout(r, 600));
+            const comment = document.getElementById('feedbackText').value.trim();
+
+            // Log review to Firebase via API (fire-and-forget, don't block UX)
+            try {
+                await fetch('/.netlify/functions/api', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        review: {
+                            cardId: cardId,
+                            profileId: selectedPersonId || selectedPerson,
+                            profileName: selectedPerson,
+                            profilePhoto: selectedPersonPhoto,
+                            starRating: selectedStarValue,
+                            comment: comment,
+                            timestamp: new Date().toISOString()
+                        }
+                    })
+                });
+            } catch(e) {
+                // Silently fail — don't block customer UX
+                console.warn('Review log failed:', e);
+            }
 
             // Hide Main container gracefully
             document.getElementById('mainContainer').style.opacity = '0';
@@ -472,12 +500,10 @@ TEMPLATE = """<!DOCTYPE html>
             setTimeout(() => {
                 document.getElementById('successOverlay').classList.add('visible');
                 
-                // Show 'Thank you' after tick completes (approx 1.2s + delay)
                 setTimeout(() => {
                     document.getElementById('thankYouMsg').classList.add('visible');
                 }, 1400);
 
-                // Wait then redirect
                 setTimeout(() => {
                     executeRedirect();
                 }, 2200);

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>North Gate — Business Dashboard</title>
+    <meta name="description" content="Business review analytics dashboard for North Gate NFC cards.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080810;
+            --surface: #10101a;
+            --surface2: #16161f;
+            --border: rgba(255,255,255,0.07);
+            --border-bright: rgba(255,255,255,0.14);
+            --green: #4BB543;
+            --green-dark: #3a9033;
+            --green-glow: rgba(75, 181, 67, 0.18);
+            --blue: #00aaff;
+            --blue-glow: rgba(0,170,255,0.15);
+            --gold: #fbb034;
+            --muted: #888;
+            --text: #f0f0f0;
+            --radius: 14px;
+            --transition: 0.25s ease;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── LOGIN ── */
+        #login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            background: radial-gradient(ellipse at 50% 0%, rgba(75,181,67,0.08) 0%, transparent 60%);
+        }
+
+        #login-screen.hidden { display: none; }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: var(--surface);
+            border: 1px solid var(--border-bright);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(75,181,67,0.08);
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 52px;
+            height: 52px;
+            background: var(--green-glow);
+            border: 1px solid rgba(75,181,67,0.3);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.4rem;
+        }
+
+        .login-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .login-card p.subtitle {
+            color: var(--muted);
+            font-size: 0.88rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-bright);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            transition: border-color var(--transition);
+            outline: none;
+        }
+
+        .input-field:focus { border-color: var(--green); }
+
+        .btn-green {
+            width: 100%;
+            background: var(--green);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 0.9rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--transition), transform 0.1s;
+        }
+        .btn-green:hover { background: var(--green-dark); }
+        .btn-green:active { transform: scale(0.98); }
+        .btn-green:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .error-msg {
+            color: #ff5555;
+            font-size: 0.82rem;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+            min-height: 1.2em;
+            text-align: left;
+        }
+
+        /* ── DASHBOARD ── */
+        #dashboard-screen { display: none; }
+        #dashboard-screen.active { display: block; }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 2.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(8,8,16,0.85);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .top-bar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 6px var(--green); }
+            50% { box-shadow: 0 0 14px var(--green); }
+        }
+
+        .top-bar-brand h1 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .top-bar-brand span {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .top-bar-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-bright);
+            color: var(--muted);
+            border-radius: 8px;
+            padding: 0.45rem 1rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .btn-outline:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
+
+        .main-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+        }
+
+        /* Section header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.4rem;
+        }
+        .section-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .section-divider {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── STAT CARDS ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.4rem 1.6rem;
+            position: relative;
+            overflow: hidden;
+            transition: border-color var(--transition);
+        }
+        .stat-card:hover { border-color: var(--border-bright); }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+        }
+        .stat-card.green::before { background: linear-gradient(90deg, var(--green), transparent); }
+        .stat-card.blue::before { background: linear-gradient(90deg, var(--blue), transparent); }
+        .stat-card.gold::before { background: linear-gradient(90deg, var(--gold), transparent); }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.6rem;
+        }
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+        .stat-sub {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* ── TOP PROFILES ── */
+        #top-profiles-section { margin-bottom: 2.5rem; }
+
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .profile-rank-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: border-color var(--transition), transform var(--transition);
+        }
+        .profile-rank-card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+
+        .rank-badge {
+            min-width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .rank-1 { background: rgba(251,176,52,0.15); color: var(--gold); border: 1px solid rgba(251,176,52,0.25); }
+        .rank-2 { background: rgba(200,200,220,0.1); color: #ccc; border: 1px solid rgba(200,200,220,0.2); }
+        .rank-3 { background: rgba(180,100,50,0.12); color: #cd7f32; border: 1px solid rgba(180,100,50,0.2); }
+        .rank-other { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); }
+
+        .profile-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-bright);
+            flex-shrink: 0;
+        }
+
+        .profile-info { flex: 1; min-width: 0; }
+        .profile-info .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .profile-info .count {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .bar-wrap {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            height: 4px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background: var(--green);
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        /* ── REVIEW FEED ── */
+        .review-feed { display: flex; flex-direction: column; gap: 0.75rem; }
+
+        .review-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.1rem 1.4rem;
+            display: grid;
+            grid-template-columns: 44px 1fr auto;
+            align-items: start;
+            gap: 1rem;
+            transition: border-color var(--transition);
+        }
+        .review-item:hover { border-color: var(--border-bright); }
+
+        .review-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-bright);
+        }
+
+        .review-body {}
+        .review-profile-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+        .review-stars { color: var(--gold); font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 4px; }
+        .review-comment {
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+        .review-no-comment { font-size: 0.82rem; color: var(--muted); font-style: italic; }
+
+        .review-meta { text-align: right; white-space: nowrap; }
+        .review-date { font-size: 0.78rem; color: var(--muted); }
+
+        /* ── EMPTY STATES ── */
+        .empty-placeholder {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+        }
+        .empty-placeholder .icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; }
+        .empty-placeholder p { font-size: 0.9rem; }
+
+        /* ── FILTER BAR ── */
+        .filter-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            background: transparent;
+            border: 1px solid var(--border-bright);
+            color: var(--muted);
+            border-radius: 20px;
+            padding: 0.3rem 0.9rem;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .filter-chip.active {
+            background: var(--green-glow);
+            border-color: rgba(75,181,67,0.4);
+            color: var(--green);
+        }
+
+        /* ── ANIMATIONS ── */
+        .fade-in {
+            animation: fadeInUp 0.4s ease both;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .top-bar { padding: 1rem 1.2rem; }
+            .main-content { padding: 1.5rem 1rem; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .review-item { grid-template-columns: 36px 1fr; }
+            .review-meta { grid-column: 2; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── LOGIN SCREEN ── -->
+    <div id="login-screen">
+        <div class="login-card fade-in">
+            <div class="login-logo">📊</div>
+            <h2>Business Dashboard</h2>
+            <p class="subtitle">Sign in to view your review analytics and customer feedback.</p>
+            <input type="text" id="biz-username" class="input-field" placeholder="Username" autocomplete="off">
+            <input type="password" id="biz-password" class="input-field" placeholder="Password" autocomplete="current-password">
+            <p class="error-msg" id="biz-login-error"></p>
+            <button id="biz-login-btn" class="btn-green">Sign In</button>
+        </div>
+    </div>
+
+    <!-- ── DASHBOARD SCREEN ── -->
+    <div id="dashboard-screen">
+
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-brand">
+                <div class="brand-dot"></div>
+                <div>
+                    <h1 id="dash-business-name">Business Dashboard</h1>
+                    <span id="dash-card-id"></span>
+                </div>
+            </div>
+            <div class="top-bar-actions">
+                <button id="biz-logout-btn" class="btn-outline">Sign Out</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+
+            <!-- Stats Row -->
+            <div class="stats-row fade-in" id="stats-row">
+                <div class="stat-card green">
+                    <div class="stat-label">Total Reviews</div>
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-sub">All time</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-value" id="stat-month">0</div>
+                    <div class="stat-sub" id="stat-month-label">reviews</div>
+                </div>
+                <div class="stat-card gold">
+                    <div class="stat-label">Avg. Star Rating</div>
+                    <div class="stat-value" id="stat-avg">—</div>
+                    <div class="stat-sub">out of 5 ★</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Top Reviewer</div>
+                    <div class="stat-value" style="font-size:1.1rem; padding-top:0.4rem;" id="stat-top">—</div>
+                    <div class="stat-sub">most selected profile</div>
+                </div>
+            </div>
+
+            <!-- Top Profiles -->
+            <div id="top-profiles-section">
+                <div class="section-header">
+                    <h2>Profiles by Reviews</h2>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="profiles-grid" id="profiles-grid">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- Review Feed -->
+            <div id="reviews-section">
+                <div class="section-header">
+                    <h2>Review Feed</h2>
+                    <div class="section-divider"></div>
+                </div>
+                <div class="filter-bar" id="filter-bar">
+                    <button class="filter-chip active" data-filter="all">All Time</button>
+                    <button class="filter-chip" data-filter="week">This Week</button>
+                    <button class="filter-chip" data-filter="month">This Month</button>
+                    <button class="filter-chip" data-filter="comments">With Comments</button>
+                </div>
+                <div class="review-feed" id="review-feed">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

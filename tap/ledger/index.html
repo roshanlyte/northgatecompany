@@ -6,6 +6,48 @@
     <title>North Gate - Ledger</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Tab system */
+        .tab-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            color: #fff;
+            border-bottom-color: #4BB543;
+        }
+        .tab-btn:hover:not(.active) {
+            color: #ddd;
+        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Account table badge */
+        .username-badge {
+            font-family: monospace;
+            background: rgba(255,255,255,0.07);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            color: #4BB543;
+        }
+    </style>
 </head>
 <body>
 
@@ -25,60 +67,93 @@
         <div class="dashboard-header">
             <div class="brand">
                 <h1>North Gate Ledger</h1>
-                <span>NFC & QR Link Management Hub</span>
+                <span>NFC &amp; QR Link Management Hub</span>
             </div>
             <div class="header-actions">
+                <a href="../dashboard/" class="btn outline-btn" style="text-decoration:none;">Business Dashboard</a>
+                <a href="../profiles/" class="btn outline-btn" style="text-decoration:none;">Profiles</a>
                 <button id="export-link-btn" class="btn outline-btn">Export Config</button>
                 <button id="add-entry-btn" class="btn primary-btn">+ Add Redirect</button>
                 <button id="logout-btn" class="btn ghost-btn">Lock</button>
             </div>
         </div>
 
-        <div class="table-container">
-            <table id="ledger-table">
-                <thead>
-                    <tr>
-                        <th>Business Name</th>
-                        <th>Card ID Number</th>
-                        <th>NFC & QR Link</th>
-                        <th class="actions-col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="ledger-body">
-                    <!-- Populated via JS -->
-                </tbody>
-            </table>
-            
-            <div id="empty-state" class="empty-state hidden">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M5 12l-3 3 3 3"/></svg>
-                <p>Your ledger is currently empty.</p>
-                <span>Click [+ Add Redirect] to create your first entry.</span>
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="redirects-tab">NFC Redirects</button>
+            <button class="tab-btn" data-tab="accounts-tab">Business Accounts</button>
+        </div>
+
+        <!-- Tab: Redirects -->
+        <div id="redirects-tab" class="tab-panel active">
+            <div class="table-container">
+                <table id="ledger-table">
+                    <thead>
+                        <tr>
+                            <th>Business Name</th>
+                            <th>Card ID Number</th>
+                            <th>NFC &amp; QR Link</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledger-body">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+                <div id="empty-state" class="empty-state hidden">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M5 12l-3 3 3 3"/></svg>
+                    <p>Your ledger is currently empty.</p>
+                    <span>Click [+ Add Redirect] to create your first entry.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Business Accounts -->
+        <div id="accounts-tab" class="tab-panel">
+            <div class="table-container">
+                <div style="padding: 1.25rem 2rem; display: flex; justify-content: flex-end; border-bottom: 1px solid rgba(255,255,255,0.07);">
+                    <button id="add-account-btn" class="btn primary-btn">+ Add Account</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Business Name</th>
+                            <th>Card ID</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th class="actions-col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accounts-body">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+                <div id="accounts-empty-state" class="empty-state hidden">
+                    <p>No business accounts yet.</p>
+                    <span>Click [+ Add Account] to create login credentials for a business.</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Add / Edit Modal -->
+    <!-- Add / Edit Redirect Modal -->
     <div id="entry-modal" class="modal-overlay">
         <div class="glass-panel modal">
             <h2 id="modal-title">Add New Redirect</h2>
             <form id="entry-form">
                 <input type="hidden" id="entry-id">
-                
                 <div class="input-group">
                     <label for="business-name">Business Name</label>
                     <input type="text" id="business-name" placeholder="e.g. Acme Corp" required>
                 </div>
-                
                 <div class="input-group">
                     <label for="card-id">Card ID Number</label>
                     <input type="number" id="card-id" placeholder="e.g. 77361" required>
                 </div>
-
                 <div class="input-group">
-                    <label for="nfc-link">NFC & QR Target Link</label>
+                    <label for="nfc-link">NFC &amp; QR Target Link</label>
                     <input type="url" id="nfc-link" placeholder="e.g. https://google.com" required>
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" id="close-modal-btn" class="btn ghost-btn">Cancel</button>
                     <button type="submit" class="btn primary-btn">Save Entry</button>
@@ -87,7 +162,37 @@
         </div>
     </div>
 
-    <!-- Export Export -->
+    <!-- Add / Edit Account Modal -->
+    <div id="account-modal" class="modal-overlay">
+        <div class="glass-panel modal">
+            <h2 id="account-modal-title">Add Business Account</h2>
+            <form id="account-form">
+                <input type="hidden" id="account-edit-index">
+                <div class="input-group">
+                    <label for="acc-card-id">Card ID (must match a redirect entry)</label>
+                    <input type="text" id="acc-card-id" placeholder="e.g. 77361" required>
+                </div>
+                <div class="input-group">
+                    <label for="acc-business-name">Business Name (display label)</label>
+                    <input type="text" id="acc-business-name" placeholder="e.g. Acme Corp" required>
+                </div>
+                <div class="input-group">
+                    <label for="acc-username">Username</label>
+                    <input type="text" id="acc-username" placeholder="e.g. acmecorp" autocomplete="off" required>
+                </div>
+                <div class="input-group">
+                    <label for="acc-password">Password</label>
+                    <input type="text" id="acc-password" placeholder="Set a password" autocomplete="off" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="close-account-modal-btn" class="btn ghost-btn">Cancel</button>
+                    <button type="submit" class="btn primary-btn">Save Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
     <div id="export-modal" class="modal-overlay">
         <div class="glass-panel modal export-modal">
             <h2>Export Script</h2>

@@ -116,6 +116,31 @@
         .login-card .white-btn:hover {
             opacity: 0.8;
         }
+        
+        /* Modal Scroll & Fixed Size */
+        #entry-modal .modal {
+            height: 80vh;
+            max-height: 700px;
+            overflow-y: auto;
+            position: relative; /* To contain flow properly */
+        }
+        #entry-modal .modal::-webkit-scrollbar {
+            width: 8px;
+        }
+        #entry-modal .modal::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        /* Modal Save Button Hover Effect */
+        #save-profiles-btn {
+            transition: all 0.3s ease;
+        }
+        #save-profiles-btn:hover {
+            background-color: #4BB543 !important;
+            color: white !important;
+            border-color: #4BB543 !important;
+        }
     </style>
 </head>
 <body>
@@ -195,11 +220,11 @@
                 <div id="file-upload-status" style="font-size: 0.85rem; color: #4BB543; margin-top: -5px; margin-bottom: 15px; display: none;">Image ready!</div>
             </div>
             
-            <button class="primary-btn" id="add-profile-btn" style="width: 100%; max-width: 400px; margin: 0 auto 15px auto; display: block; border-radius: 30px;">Add Profile</button>
+            <button class="primary-btn" id="add-profile-btn" style="width: 100%; max-width: 400px; margin: 0 auto 15px auto; display: block; border-radius: 30px; padding: 18px; font-size: 1.05rem; font-weight: 600;">Add Profile</button>
             
             <div class="form-actions" style="margin-top: 30px; display: flex; justify-content: center; gap: 15px;">
-                <button type="button" class="btn outline-btn" id="close-modal-btn" style="border-radius: 30px; padding: 10px 25px;">Close</button>
-                <button type="button" class="primary-btn btn" id="save-profiles-btn" style="border-radius: 30px; padding: 10px 25px;">Save Changes</button>
+                <button type="button" class="btn outline-btn" id="close-modal-btn" style="border-radius: 30px; padding: 12px; width: 140px; font-weight: 600;">Close</button>
+                <button type="button" class="primary-btn btn" id="save-profiles-btn" style="border-radius: 30px; padding: 12px; width: 140px; font-weight: 600;">Save Changes</button>
             </div>
         </div>
     </div>

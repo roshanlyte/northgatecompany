@@ -164,13 +164,32 @@ exports.handler = async (event) => {
                     return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: "Missing required review fields" }) };
                 }
 
-                // Append to existing reviews array
+                // Extract client IP (Netlify sets x-nf-client-connection-ip reliably)
+                const clientIp = event.headers['x-nf-client-connection-ip']
+                    || (event.headers['x-forwarded-for'] || '').split(',')[0].trim()
+                    || event.headers['client-ip']
+                    || 'unknown';
+
+                // Fetch existing reviews
                 const fetchRes = await fetch(`${FIREBASE_URL}/reviews.json?auth=${FIREBASE_SECRET}`);
                 const existing = await fetchRes.json();
                 const reviews = Array.isArray(existing) ? existing : [];
 
+                // IP rate limit: one review per IP per cardId per 24 hours
+                const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+                const recentFromIp = reviews.find(r =>
+                    r.cardId === review.cardId &&
+                    r.clientIp === clientIp &&
+                    clientIp !== 'unknown' &&
+                    r.timestamp && new Date(r.timestamp).getTime() > oneDayAgo
+                );
+                if (recentFromIp) {
+                    return { statusCode: 429, headers: corsHeaders, body: JSON.stringify({ error: "already_reviewed" }) };
+                }
+
                 review.id = Date.now().toString();
                 review.timestamp = review.timestamp || new Date().toISOString();
+                review.clientIp = clientIp;
                 reviews.push(review);
 
                 const putRes = await fetch(`${FIREBASE_URL}/reviews.json?auth=${FIREBASE_SECRET}`, {

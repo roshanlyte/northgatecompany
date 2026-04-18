@@ -360,6 +360,17 @@
 
     <script>
         const cardId = "77364";
+        // Session guard: block re-submission within 24 hours
+        const REVIEW_KEY = 'ng_reviewed_' + cardId;
+        const lastReview = localStorage.getItem(REVIEW_KEY);
+        if (lastReview && (Date.now() - parseInt(lastReview)) < 24 * 60 * 60 * 1000) {
+            document.getElementById('mainContainer').innerHTML = `
+                <div style="text-align:center;padding:2rem;">
+                    <div style="font-size:3rem;margin-bottom:1rem;color:#4BB543;">✓</div>
+                    <h2 style="color:#4BB543;margin-bottom:0.5rem;">Already Reviewed</h2>
+                    <p style="opacity:0.6;font-size:0.9rem;">You've already left a review today.<br>Come back tomorrow!</p>
+                </div>`;
+        }
         
         let targetUrl = 'https://northgatecompany.co.uk'; // Fallback
         let selectedPerson = null;
@@ -467,8 +478,11 @@
             const comment = document.getElementById('feedbackText').value.trim();
 
             // Log review to Firebase via API (fire-and-forget, don't block UX)
+            // Lock immediately so double-taps and network failures don't allow re-submission
+            localStorage.setItem(REVIEW_KEY, Date.now().toString());
+
             try {
-                await fetch('/.netlify/functions/api', {
+                const res = await fetch('/.netlify/functions/api', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -483,6 +497,16 @@
                         }
                     })
                 });
+                if (res.status === 429) {
+                    document.getElementById('mainContainer').innerHTML = `
+                        <div style="text-align:center;padding:2rem;">
+                            <div style="font-size:3rem;margin-bottom:1rem;color:#4BB543;">✓</div>
+                            <h2 style="color:#4BB543;margin-bottom:0.5rem;">Already Reviewed</h2>
+                            <p style="opacity:0.6;font-size:0.9rem;">You've already left a review today.<br>Come back tomorrow!</p>
+                        </div>`;
+                    btn.style.display = 'none';
+                    return;
+                }
             } catch(e) {
                 // Silently fail — don't block customer UX
                 console.warn('Review log failed:', e);
